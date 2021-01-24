@@ -47,6 +47,7 @@ async def on_message(message):
 async def on_member_update(before, after):
     if str(before.status) == "online":
         print("{} has gone {}.".format(before.name,before.status))
+        
         if str(after.status) == "offline":
             print("{} has gone {}.".format(after.name,after.status))
 
