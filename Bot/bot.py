@@ -1,9 +1,12 @@
 # bot.py
 import os
+import csv
+import pandas as pd
 
 import discord
 from discord import Status
 from dotenv import load_dotenv
+from datetime import datetime, date
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -34,22 +37,65 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-
-    brooklyn_99_quotes =  'I\'m the human form of the 💯 emoji.'
+    
+    if message.content == '!uptime':
+        print(message.author)
+        #start_session = get_timediffrence(message.author)
+        start_session = "test"
         
+        await message.channel.send(str(start_session))
         
-
-    if message.content == '!99':
-        response = brooklyn_99_quotes
-        await message.channel.send(response)
-
 @client.event
 async def on_member_update(before, after):
     if str(before.status) == "online":
         print("{} has gone {}.".format(before.name,before.status))
-        
+        start_time(before.name)
+
         if str(after.status) == "offline":
             print("{} has gone {}.".format(after.name,after.status))
+            end_time(before.name)
 
+            
+#functions for timediffrence
+def get_timediffrence(author):
+    df_start = pd.read_csv("start_time.csv")
+    df_end = pd.read_csv("end_time.csv")
+
+    start = df_start[author]
+    return start
+
+#logging for the time events
+def start_time(author):
+    now = datetime.now()
+    today = date.today()
+
+    start_time = now.strftime("%H:%M:%S")
+    start_date = today.strftime("%d/%m/%Y")
+
+    var = []
+    var.append(author)
+    var.append(start_time)
+    var.append(start_date)
+
+    with open("start_time.csv", "a") as file:
+        writer = csv.writer(file)
+        writer.writerow(var)
+   
+
+def end_time(author):
+    now = datetime.now()
+    today = date.today()
+
+    end_time = now.strftime("%H:%M:%S")
+    end_date = today.strftime("%d/%m/%Y")
+
+    var = []
+    var.append(author)
+    var.append(end_time)
+    var.append(end_date)
+
+    with open("end_time.csv", "a") as file:
+        writer = csv.writer(file)
+        writer.writerow(var)
 
 client.run(TOKEN)
